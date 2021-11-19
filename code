@@ -1,0 +1,64 @@
+import pandas as pd
+from pandas import ExcelWriter
+
+
+xls = pd.ExcelFile('C:\\Users\\1787912\\Downloads\\mbValidation\\accountRequest.xlsx')
+mem = pd.read_excel(xls, 'mem')
+den = pd.read_excel(xls, 'gp')
+
+mem.fillna('[NULL]', inplace = True)
+den.fillna('[NULL]', inplace = True)
+
+mem = mem.astype(str)
+den = den.astype(str)
+
+
+mem = mem.assign(comments_concat=mem['comments_concat'].str.split(',<<<')).explode('comments_concat')
+
+# d = list(den.columns) 
+
+# l =[]
+
+# for i in range(len(den['comments_concat'])):
+#     if str(den['assigned_to_sso'][i]) in den['comments_concat'][i]:
+#         l.append(i)
+    
+# mem = mem.astype({"tcode": str})
+# den = den.astype({"tcode": str})
+
+a = mem.sort_values('concat')
+b = den.sort_values('concat')
+
+u1 = a['concat'].unique()
+u2 = b['concat'].unique()
+
+
+x = a.to_numpy()
+y = b.to_numpy()
+
+
+
+
+
+result = [[ '' for i in range(82)] for j in range(len(b))]
+
+for i in range(len(y)):
+    for j in range(81):
+        if str(x[i][j]) == str(y[i][j]):
+            result[i][j] = 'True'
+        else:
+            result[i][j] = 'False'
+
+df = pd.DataFrame(result)
+
+def save_xls(list_dfs, xls_path):
+    with ExcelWriter(xls_path) as writer:
+        for n, df in enumerate(list_dfs):
+            df.to_excel(writer,'sheet%s' % n)
+        writer.save()
+save_xls([a,b,df], 'C:\\Users\\1787912\\Downloads\\mbValidation\\analysisRequest.xlsx')
+# for i in range(len(den)):
+#     if a.iloc[i].equals(b.iloc[i]):
+#         r.append('True')
+#     else:
+#         r.append('False')
